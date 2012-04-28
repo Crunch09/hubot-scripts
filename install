@@ -1,7 +1,9 @@
 #!/usr/bin/perl
 
-(my $out, $path, $hubotscriptpath, $jsonpath);
+use Cwd;
 
+(my $out, $path, $hubotscriptpath, $jsonpath, $dir);
+$dir = cwd;
 
 if(@ARGV > 0){
 	$path = $ARGV[0];
@@ -9,6 +11,7 @@ if(@ARGV > 0){
 }else{
 	my $test = system("cd ../hubot");
 	if($test == 0){
+		#$path = "/Users/hagenlauer/Documents/Developement/hubot";
 		$path = "../hubot";
 	}else{
 		die("DAFUQ? no parameters, where am I supposed to write that shit at?");
@@ -25,8 +28,12 @@ print JSON "[";
 my @arr = split (/\n/,$out);
 my $cnt = 0;
 foreach(@arr){
+	
 	$_ =~ s/\.\///;
-
+	#print "rm $hubotscriptpath/$_\n";
+	#print "ln -s $_ $hubotscriptpath/$_\n";
+	system("rm $hubotscriptpath/$_"); #delete the old links, that might me deprecated
+	
 	if($cnt == 0){
 		print JSON "\"".$_."\",";
 		$cnt++;
@@ -42,7 +49,8 @@ foreach(@arr){
 }
 print JSON "]";
 
-system("ln -s *.coffee $hubotscriptpath");
+#print ("ln -s $dir/*.coffee $hubotscriptpath \n");
+system("ln -s $dir/*.coffee $hubotscriptpath");
 
 
 
