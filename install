@@ -1,0 +1,50 @@
+#!/usr/bin/perl
+
+(my $out, $path, $hubotscriptpath, $jsonpath);
+
+
+if(@ARGV > 0){
+	$path = $ARGV[0];
+	print $path . "\n";
+}else{
+	my $test = system("cd ../hubot");
+	if($test == 0){
+		$path = "../hubot";
+	}else{
+		die("DAFUQ? no parameters, where am I supposed to write that shit at?");
+	}
+}
+$jsonpath = $path."/";
+$hubotscriptpath = $path . "/node_modules/hubot-scripts/src/scripts";
+
+$out = qx/find . -name '*.coffee'/;
+
+open JSON , ">".$jsonpath."hubot-scripts.json";
+
+print JSON "[";
+my @arr = split (/\n/,$out);
+my $cnt = 0;
+foreach(@arr){
+	$_ =~ s/\.\///;
+
+	if($cnt == 0){
+		print JSON "\"".$_."\",";
+		$cnt++;
+		next;
+	}
+	if($cnt == $#arr){
+		print JSON "\"".$_."\"";
+		$cnt++;
+		next; 
+	}
+	print JSON "\"".$_."\",";
+	$cnt ++;
+}
+print JSON "]";
+
+system("ln -s *.coffee $hubotscriptpath");
+
+
+
+
+
