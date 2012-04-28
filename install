@@ -7,7 +7,7 @@ $dir = cwd;
 
 if(@ARGV > 0){
 	$path = $ARGV[0];
-	if($path == "--help"){
+	if($path eq "--help"){
 		print "usage: ./install <path to hubot> for example \"./install ../hubot\"\n";
 		exit(0);
 	}
@@ -21,7 +21,7 @@ if(@ARGV > 0){
 		die("DAFUQ? no parameters, where am I supposed to write that shit at? try ./install --help");
 	}
 }
-print "using default path: ../hubot \n";
+print "using path: $path \n";
 $jsonpath = $path."/";
 $hubotscriptpath = $path . "/node_modules/hubot-scripts/src/scripts";
 
