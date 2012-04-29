@@ -21,7 +21,6 @@ ping = (msg, auth, oldFullcount) ->
               e = entries[0].split "</entry>"
               diff = fullcount - oldFullcount
               for entry in e
-                console.log("Diff: "+ diff)
                 if ((--diff) < 0)
                   break
                 if entry == ""
@@ -36,6 +35,9 @@ ping = (msg, auth, oldFullcount) ->
                 name = namematch[1]
                 email = emailmatch[1]
                 msg.send("Neue Mail auf der Mailingliste: #{name} <#{email}>: #{title} -> #{summary}")
+              else if fullcount < oldFullcount
+                # neuer Init
+                oldFullcount = 0
     setTimeout (->
       ping(msg,auth,fullcount)
     ), frequency
