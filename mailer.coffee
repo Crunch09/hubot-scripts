@@ -35,9 +35,9 @@ ping = (msg, auth, oldFullcount) ->
                 name = namematch[1]
                 email = emailmatch[1]
                 msg.send("Neue Mail auf der Mailingliste: #{name} <#{email}>: #{title} -> #{summary}")
-              else if fullcount < oldFullcount
-                # neuer Init
-                oldFullcount = 0
+            else if fullcount < oldFullcount
+              #  neuer Init
+              oldFullcount = 0
     setTimeout (->
       ping(msg,auth,fullcount)
     ), frequency
