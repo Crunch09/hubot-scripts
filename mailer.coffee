@@ -1,5 +1,7 @@
 # Fetches new mails to the mailinglist of FSMNI
-#
+# requres export GMAIL_USER = "123@gmail.com" 
+#         export GMAIL_PASS = "password"
+
 
 
 HTTPS = require "https"
@@ -34,7 +36,7 @@ ping = (msg, auth, oldFullcount) ->
                 summary = summarymatch[1]
                 name = namematch[1]
                 email = emailmatch[1]
-                msg.send("Neue Mail auf der Mailingliste: #{name} <#{email}>: #{title} -> #{summary}")
+                msg.send("New mail: #{name} <#{email}>: #{title} -> #{summary}")
             else if fullcount < oldFullcount
               #  neuer Init
               oldFullcount = 0
@@ -46,13 +48,18 @@ module.exports = (robot) ->
   
         
 
-  robot.respond /mail ([0-9]+)/i, (msg) ->
-    fullcount = msg.match[1]
-    console.log(fullcount)
-    user = process.env.GMAIL_USER
-    pass = process.env.GMAIL_PASS
-    auth = "Basic " + new Buffer(user + ":" + pass).toString('base64');
-    ping(msg, auth, fullcount)
+  robot.respond /mail ([0-9]+) (.*)/i, (msg) ->
+    msg.send msg.match[1]
+    msg.send msg.match[2]
+    if msg.match[2] == process.env.GMAIL_PASS
+      fullcount = msg.match[1]
+      console.log(fullcount)
+      user = process.env.GMAIL_USER
+      pass = process.env.GMAIL_PASS
+      auth = "Basic " + new Buffer(user + ":" + pass).toString('base64');
+      ping(msg, auth, fullcount)
+    else
+      msg.send("Try again")
     
   
 
