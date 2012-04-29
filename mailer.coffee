@@ -6,37 +6,51 @@ HTTPS = require "https"
 URL  = require "url"
 HTTP = require "http"
 
-frequency = 60000 * 5
+frequency = 60000 * 5 # 5 min
 
-ping = (msg, auth) ->
-		msg.http("https://mail.google.com/mail/feed/atom")
-	      	.headers(Authorization: auth, Accept: 'text/html')
-	      	.get() (err,res,body) ->
-	      	str = body.replace /\n/g, ""
-	      	entry = str.match(/<entry>(.*)<\/entry>/)
-	      	authormatch = entry[1].match(/<author>(.*)<\/author>/)
-	      	namematch = authormatch[1].match(/<name>(.*)<\/name>/)
-	      	emailmatch = authormatch[1].match(/<email>(.*)<\/email>/)
-	      	titlematch = entry[1].match(/<title>(.*)<\/title>/)
-	      	summarymatch = entry[1].match(/<summary>(.*)<\/summary>/)
-	      	title = titlematch[1]
-	      	summary = summarymatch[1]
-	      	name = namematch[1]
-	      	email = emailmatch[1]
-	      	console.log(name)
-	      	console.log(email)
-	      	console.log(title)
-	      	console.log(summary)
+ping = (msg, auth, oldFullcount) ->
+    fullcount = oldFullcount
+    msg.http("https://mail.google.com/mail/feed/atom")
+          .headers(Authorization: auth, Accept: 'text/html')
+          .get() (err,res,body) ->
+            str = body.replace /\n/g, ""
+            fullcountmatch = str.match(/<fullcount>(.*)<\/fullcount/)
+            fullcount = fullcountmatch[1]
+            if fullcount > oldFullcount
+              entries = str.match(/<entry>(.*)<\/entry>/g)
+              e = entries[0].split "</entry>"
+              diff = fullcount - oldFullcount
+              for entry in e
+                console.log("Diff: "+ diff)
+                if ((--diff) < 0)
+                  break
+                if entry == ""
+                  continue
+                authormatch = entry.match(/<author>(.*)<\/author>/)
+                namematch = authormatch[1].match(/<name>(.*)<\/name>/)
+                emailmatch = authormatch[1].match(/<email>(.*)<\/email>/)
+                titlematch = entry.match(/<title>(.*)<\/title>/)
+                summarymatch = entry.match(/<summary>(.*)<\/summary>/)
+                title = titlematch[1]
+                summary = summarymatch[1]
+                name = namematch[1]
+                email = emailmatch[1]
+                msg.send("Neue Mail auf der Mailingliste: #{name} <#{email}>: #{title} -> #{summary}")
+    setTimeout (->
+      ping(msg,auth,fullcount)
+    ), frequency
 
 module.exports = (robot) ->
-	
-      	
+  
+        
 
-  robot.respond /mail/i, (msg) ->
+  robot.respond /mail ([0-9]+)/i, (msg) ->
+    fullcount = msg.match[1]
+    console.log(fullcount)
     user = process.env.GMAIL_USER
     pass = process.env.GMAIL_PASS
     auth = "Basic " + new Buffer(user + ":" + pass).toString('base64');
-    ping(msg, auth)
+    ping(msg, auth, fullcount)
     
   
 
