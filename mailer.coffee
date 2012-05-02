@@ -52,6 +52,7 @@ module.exports = (robot) ->
     msg.send msg.match[1]
     msg.send msg.match[2]
     if msg.match[2] == process.env.GMAIL_PASS
+      msg.message.user.type = "groupchat"
       fullcount = msg.match[1]
       console.log(fullcount)
       user = process.env.GMAIL_USER
